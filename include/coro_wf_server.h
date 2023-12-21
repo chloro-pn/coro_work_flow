@@ -2,6 +2,8 @@
 
 #include <cassert>
 
+#include "async_simple/Executor.h"
+#include "async_simple/Try.h"
 #include "async_simple/coro/Lazy.h"
 #include "workflow/SubTask.h"
 #include "workflow/WFServer.h"

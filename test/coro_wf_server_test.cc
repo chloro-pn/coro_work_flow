@@ -6,6 +6,7 @@
 
 #include "async_simple/executors/SimpleExecutor.h"
 #include "gtest/gtest.h"
+#include "network_task_awaiter.h"
 #include "workflow/HttpMessage.h"
 #include "workflow/WFFacilities.h"
 #include "workflow/WFHttpServer.h"
@@ -46,19 +47,36 @@ TEST(coro_wf_server_task, basic) {
   WFFacilities::WaitGroup wg(1);
   int state = 0;
   int error = 0;
-  std::string resp;
+  std::string resp_body;
+  /*
   WFTaskFactory::create_http_task("http://127.0.0.1:12345", 0, 0, [&](WFHttpTask* task) {
     state = task->get_state();
     error = task->get_error();
     const void* ptr = nullptr;
     size_t len = 0;
-    resp = task->get_resp()->get_parsed_body(&ptr, &len);
-    resp = std::string((const char*)ptr, len);
+    task->get_resp()->get_parsed_body(&ptr, &len);
+    resp_body = std::string((const char*)ptr, len);
     wg.done();
   })->start();
+  */
+  auto request_lazy_task = [&]() -> async_simple::coro::Lazy<void> {
+    auto task = WFTaskFactory::create_http_task("http://127.0.0.1:12345", 0, 0, nullptr);
+    detail::network_response_t<protocol::HttpResponse> resp = co_await start_http_request(task);
+    state = resp.state;
+    error = resp.error;
+    const void* ptr = nullptr;
+    size_t len = 0;
+    resp.response.get_parsed_body(&ptr, &len);
+    resp_body = std::string((const char*)ptr, len);
+    wg.done();
+    co_return;
+  };
+
+  request_lazy_task().via(&ex).start([](auto&&) {});
+
   wg.wait();
   EXPECT_EQ(state, WFT_STATE_SUCCESS);
   EXPECT_EQ(error, 0);
-  EXPECT_EQ(resp, "hello world");
+  EXPECT_EQ(resp_body, "hello world");
   server.stop();
 }

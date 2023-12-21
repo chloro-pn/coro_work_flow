@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <coroutine>
 #include <string>
 #include <type_traits>
 

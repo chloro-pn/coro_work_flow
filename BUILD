@@ -7,7 +7,13 @@ cc_library(
   includes = [
     "include"
   ],
-  hdrs = glob(["include/**/*.h"])
+  hdrs = glob(["include/**/*.h"]),
+  deps = [
+    "@workflow//:http",
+    "@workflow//:redis",
+    "@workflow//:mysql",
+    "@com_github_async_simple//:async_simple",
+  ]
 )
 
 cc_test(
@@ -19,7 +25,6 @@ cc_test(
     ":coro_async_simple",
     "@googletest//:gtest",
     "@googletest//:gtest_main",
-    "@com_github_async_simple//:async_simple",
     "@com_github_async_simple//:simple_executors",
     "@workflow//:http",
   ]
