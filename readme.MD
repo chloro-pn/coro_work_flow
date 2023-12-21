@@ -11,3 +11,10 @@ coro_work_flow是Workflow项目的协程组件实现，基于async_simple。
 
 * start_timer_task
   该组件将create_timer_task功能封装为Awaiter，可以在Lazy中co_await。
+
+* start_parallel_work
+
+* start_go_task
+
+* WFNetworkHandler
+  该组件可以将server的处理逻辑封装为Lazy协程处理，见coro_wf_server_test.cc
